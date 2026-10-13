@@ -1,0 +1,57 @@
+# =========================================================
+# 1. SECRETS
+# Anything holding passwords, API keys or database details.
+# =========================================================
+.env
+.env.*
+!.env.example
+*.pem
+.aws/
+
+# =========================================================
+# 2. DATA (privacy rule: real people's posts never reach GitHub)
+# =========================================================
+data/
+*.csv
+*.jsonl
+*.parquet
+*.dump
+*.backup
+*.sql.gz
+
+# Later, when we add dbt seeds (small lookup CSVs we DO want committed),
+# uncomment the line below to make an exception for them:
+# !dbt/seeds/*.csv
+
+# =========================================================
+# 3. LOGS (can contain post text, so treat them like data)
+# =========================================================
+logs/
+*.log
+
+# =========================================================
+# 4. PYTHON (generated automatically, rebuilt on demand)
+# =========================================================
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# =========================================================
+# 5. DBT (build output and downloaded packages)
+# =========================================================
+target/
+dbt_packages/
+.user.yml
+
+# =========================================================
+# 6. CLAUDE CODE (your personal settings, not project rules)
+# =========================================================
+.claude/settings.local.json
+
+# =========================================================
+# 7. MAC AND EDITOR CLUTTER
+# =========================================================
+.DS_Store
+.vscode/
