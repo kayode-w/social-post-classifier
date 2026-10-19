@@ -1,6 +1,12 @@
 import requests
 import json
-from requests.exceptions import RequestException
+from datetime import datetime, timedelta, timezone
+
+# created this because i needed a way to pass the elements into the two functions
+INSTANCE = "mastodon.social"
+HASHTAG = "tech"
+CURRENT_TIME = datetime.now(timezone.utc).isoformat() #converts the time to a string that can be read by json dumps
+
 
 # step 1: grab the posts
 def fetch_posts(instance: str, hashtag: str) -> list[dict]: #returns a list of dictionaries, each representing a post
@@ -10,6 +16,8 @@ def fetch_posts(instance: str, hashtag: str) -> list[dict]: #returns a list of d
     Args:
         instance (str): The Mastodon instance URL (e.g., "mastodon.social").
         hashtag (str): The hashtag to search for (without the '#' symbol).
+    Returns:
+        list of dicts: A list of dictionaries containing the extracted information.
     """
  
     url = f"https://{instance}/api/v1/timelines/tag/{hashtag}"
@@ -23,12 +31,15 @@ def fetch_posts(instance: str, hashtag: str) -> list[dict]: #returns a list of d
 
 
 # step 2: extract only the fields we need
-def extract_fields(post: dict) -> dict: #need to give it one post, not the list of posts
+def extract_fields(post: dict, instance: str, hashtag: str, loaded_at: str = CURRENT_TIME) -> dict: #need to give it one post, not the list of posts
     """
-    Extracts relevant information from a list of posts.
+    Extracts relevant information from a single post.
 
     Args:
         post (dict): A dictionary representing a single post.
+        instance (str): Server instance where post is fetched from.
+        hashtag (str): Hashtag of post that has been fetched.
+        loaded_at (str): When this batch was loaded, in UTC
     Returns:
         dict: A dictionary containing the extracted information.
     """
@@ -37,20 +48,27 @@ def extract_fields(post: dict) -> dict: #need to give it one post, not the list 
         "post_id": post["id"],
         "content_html": post["content"],
         "created_at": post["created_at"],
-        "language": post["language"]
+        "language": post["language"],
+        "instance": instance,
+        "is_reblog": False if post["reblog"] is None else True,
+        "post_type": "repost" if post["reblog"] is not None else "original",
+        "source_hashtag": hashtag,
+        "loaded_at": loaded_at
         }
     return row
     
-
-posts = fetch_posts("mastodon.social", "tech") #list of posts, each post is a dictionary
+# calls
+posts = fetch_posts(INSTANCE, HASHTAG) #list of posts, each post is a dictionary
 # row = extract_fields(posts[0])
-
 
 #step 3: re arrange all posts into list with the relevant data we extracted
 all_posts = []
 
+# at this point, we feed the fxn one post at a time
 for post in posts:
-    tbl_row = extract_fields(post)
+
+    tbl_row = extract_fields(post, INSTANCE, HASHTAG)
+
     all_posts.append(tbl_row)
 
 print(type(all_posts))
