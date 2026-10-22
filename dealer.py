@@ -30,10 +30,10 @@ def fetch_posts(instance: str, hashtag: str) -> list[dict]: #returns a list of d
 # print(posts[0].keys())  # Print the first post for inspection
 
 
-# step 2: extract only the fields we need
+# step 2: extract only the fields we need (this function assumes that what is past in is a single post, not the list of posts)
 def extract_fields(post: dict, instance: str, hashtag: str, loaded_at: str = CURRENT_TIME) -> dict: #need to give it one post, not the list of posts
     """
-    Extracts relevant information from a single post.
+    Extracts relevant fields from a single post.
 
     Args:
         post (dict): A dictionary representing a single post.
@@ -44,6 +44,16 @@ def extract_fields(post: dict, instance: str, hashtag: str, loaded_at: str = CUR
         dict: A dictionary containing the extracted information.
     """
 
+    #the tags are nested within the post and contain multiple tags, so i'll run a loop to extract the tag name so it can be appended into the dict below
+    tag_names = []
+    for tag in post['tags']:
+        name = tag['name']
+        tag_names.append(name)
+
+    #here, i'd extract the server used for this post, useful field in analytics to help filter the origin of the posts.
+    acc = post['account']['acct']
+    author_server = acc.split('@')[1] if '@' in acc else instance
+
     row = {
         "post_id": post["id"],
         "content_html": post["content"],
@@ -51,8 +61,10 @@ def extract_fields(post: dict, instance: str, hashtag: str, loaded_at: str = CUR
         "language": post["language"],
         "instance": instance,
         "is_reblog": False if post["reblog"] is None else True,
-        "post_type": "repost" if post["reblog"] is not None else "original",
+        # "post_type": "repost" if post["reblog"] is not None else "original",
         "source_hashtag": hashtag,
+        "tags": tag_names,
+        "author_server": author_server,
         "loaded_at": loaded_at
         }
     return row
@@ -67,8 +79,7 @@ all_posts = []
 # at this point, we feed the fxn one post at a time
 for post in posts:
 
-    tbl_row = extract_fields(post, INSTANCE, HASHTAG)
-
+    tbl_row = extract_fields(post, INSTANCE, HASHTAG) #extract the relevant fields one post at a time.
     all_posts.append(tbl_row)
 
 print(type(all_posts))
