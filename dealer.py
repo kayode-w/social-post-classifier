@@ -41,7 +41,7 @@ def fetch_posts(instance: str, hashtag: str, max_pages: int = MAX_PAGES) -> list
         max_pages (int): The most pages to fetch. Each page holds up to 40 posts.
 
     Returns:
-        list[dict]: The raw posts, one dictionary per post, exactly as Mastodon sent them.
+        list[dict]: Alist containing a dictionary of raw posts, one dictionary per post, exactly as Mastodon sent them.
     """
  
     url = f"https://{instance}/api/v1/timelines/tag/{hashtag}?limit=40"
@@ -52,7 +52,7 @@ def fetch_posts(instance: str, hashtag: str, max_pages: int = MAX_PAGES) -> list
         response = requests.get(url, timeout=10) #limit to 40 posts and timeout after 10 seconds
         response.raise_for_status()  #raise an error for bad responses
         data = response.json()
-        posts.extend(data)
+        posts.extend(data) # used extend to build on existing posts
 
         # now we loop through the other pages, response.links contains the info for the next page. 
 
@@ -60,7 +60,7 @@ def fetch_posts(instance: str, hashtag: str, max_pages: int = MAX_PAGES) -> list
         #     "next": {"url": "https://...max_id=123", "rel": "next"},
         #     "prev": {"url": "https://...min_id=456", "rel": "prev"}
         # }
-        next_url = response.links.get('next', {}).get('url')
+        next_url = response.links.get('next', {}).get('url') #if there is no next page, this will return None
         if not next_url:
             break
         url = next_url
@@ -106,20 +106,3 @@ def extract_fields(post: dict, instance: str, hashtag: str, loaded_at: str = CUR
         "loaded_at": loaded_at
         }
     return row
-    
-# calls
-posts = fetch_posts(INSTANCE, HASHTAG, MAX_PAGES) #list of posts, each post is a dictionary
-# row = extract_fields(posts[0])
-
-#step 3: re arrange all posts into list with the relevant data we extracted
-all_posts = []
-
-# at this point, we feed the fxn one post at a time
-for post in posts:
-
-    tbl_row = extract_fields(post, INSTANCE, HASHTAG) #extract the relevant fields one post at a time.
-    all_posts.append(tbl_row)
-
-print(type(all_posts))
-print(len(all_posts))
-print(json.dumps(all_posts, indent = 2,ensure_ascii=False ))

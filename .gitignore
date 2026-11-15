@@ -7,6 +7,7 @@
 !.env.example
 *.pem
 .aws/
+*.ipynb
 
 # =========================================================
 # 2. DATA (privacy rule: real people's posts never reach GitHub)
