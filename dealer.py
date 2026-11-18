@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 # created this because i needed a way to pass the elements into the two functions
 INSTANCE = "mastodon.social"
-HASHTAG = "tech"
+HASHTAGS = ["tech", 'ai', 'fitness', 'news', 'sports', 'music', 'gaming', 'movies', 'books', 'travel', 'food', 'fashion']
 CURRENT_TIME = datetime.now(timezone.utc).isoformat() #converts the time to a string that can be read by json dumps
 MAX_PAGES = 3
 
