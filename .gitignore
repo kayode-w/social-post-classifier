@@ -19,6 +19,7 @@ data/
 *.dump
 *.backup
 *.sql.gz
+!transform/seeds/*.csv
 
 # Later, when we add dbt seeds (small lookup CSVs we DO want committed),
 # uncomment the line below to make an exception for them:
