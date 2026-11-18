@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: mastodon
+    description: >
+      Raw Mastodon posts loaded by the Python pipeline (ignition.py → loader.py).
+      One row per post, as loaded. Never edited by dbt.
+    schema: public
+    tables:
+      - name: raw_posts
+        description: >
+          Public posts fetched from Mastodon hashtag timelines, one row per post.
+          Reruns skip posts already stored (primary key on post_id).
+        columns:
+          - name: post_id
+            description: "Mastodon status id. Primary key: one row per post."
+            data_tests:
+              - unique
+              - not_null
+          - name: content_html
+            description: "Post text exactly as Mastodon sent it, including HTML tags. Cleaned in stg_posts."
+          - name: created_at
+            description: "When the post was published (UTC, from Mastodon)."
+          - name: language
+            description: "Language code Mastodon assigned to the post (e.g. en). Can be null."
+          - name: instance
+            description: "The Mastodon server the posts were fetched from (e.g. mastodon.social)."
+          - name: is_reblog
+            description: "True if the post is a boost (a reshare of someone else's post), false if original."
+          - name: source_hashtag
+            description: "The hashtag used to fetch the post. If a post appears under several hashtags, the first one loaded wins."
+          - name: tags
+            description: "Every hashtag on the post (text array), not just the one used to fetch it."
+          - name: author_server
+            description: "Server part of the author's handle (e.g. gamefan.net). Used to spot bridged and news accounts. Usernames are never stored."
+          - name: loaded_at
+            description: "When the pipeline loaded this batch (UTC). One value per run."
