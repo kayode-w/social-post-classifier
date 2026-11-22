@@ -20,7 +20,7 @@ quality_check as
 		else False
 		end as is_original,
 	case 
-		when tag_count <= 5 then True
+		when tag_count <= 8 then True
 		else False
 		end as is_not_stuffed,
     exists (
