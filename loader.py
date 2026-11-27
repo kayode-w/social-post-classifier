@@ -22,7 +22,7 @@ ON CONFLICT (post_id) DO NOTHING
 """
 #on conflict skips existing rows to prevent dups
 
-
+#here, the rows we pass is the what is returned from extract_posts
 def load_posts(conn, rows: list[dict]) -> int:
     """
     Inserts rows into public.raw_posts, skipping any post_id already stored.
